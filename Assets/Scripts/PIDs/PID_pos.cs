@@ -14,8 +14,8 @@ public class PID_pos : MonoBehaviour
     [Range(0f, 3f)]
     public float Kd = 0.1f;
 
-    float P, I, D;
-    Vector3 vP, vI, vD;
+    public float P, I, D;
+    public Vector3 vP, vI, vD;
     public Vector4 posError;
 
 

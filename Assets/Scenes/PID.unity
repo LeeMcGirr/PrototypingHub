@@ -161,6 +161,12 @@ MonoBehaviour:
   Kp: 8.8
   Ki: 7.7
   Kd: 0.249
+  P: 0
+  I: 0
+  D: 0
+  vP: {x: 0, y: 0, z: 0}
+  vI: {x: 0, y: 0, z: 0}
+  vD: {x: 0, y: 0, z: 0}
   posError: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &804042507
 MonoBehaviour:
@@ -178,6 +184,12 @@ MonoBehaviour:
   Kp: 2.4
   Ki: 7.3
   Kd: 0.076
+  P: 0
+  I: 0
+  D: 0
+  vP: {x: 0, y: 0, z: 0}
+  vI: {x: 0, y: 0, z: 0}
+  vD: {x: 0, y: 0, z: 0}
   posError: {x: 0, y: 0, z: 0, w: 0}
 --- !u!135 &804042509
 SphereCollider:
@@ -303,7 +315,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 804042505}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fffc0592c703c774ca80d70f6fa65552, type: 3}
   m_Name: 
@@ -329,14 +341,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myName: 
   Kp: 0
-  Ki: 0
+  Ki: 0.1
   Kd: 0
   P: 0
   I: 0
   D: 0
-  qP: {x: 0, y: 0, z: 0, w: 0}
-  qI: {x: 0, y: 0, z: 0, w: 0}
-  qD: {x: 0, y: 0, z: 0, w: 0}
+  vP: {x: 0, y: 0, z: 0}
+  vI: {x: 0, y: 0, z: 0}
+  vD: {x: 0, y: 0, z: 0}
   rotError: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &804042516
 MonoBehaviour:
@@ -351,15 +363,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myName: 
-  Kp: 28.4
-  Ki: 0
-  Kd: 0
+  Kp: 33.1
+  Ki: 9
+  Kd: 1.03
   P: 0
   I: 0
   D: 0
-  qP: {x: 0, y: 0, z: 0, w: 0}
-  qI: {x: 0, y: 0, z: 0, w: 0}
-  qD: {x: 0, y: 0, z: 0, w: 0}
+  vP: {x: 0, y: 0, z: 0}
+  vI: {x: 0, y: 0, z: 0}
+  vD: {x: 0, y: 0, z: 0}
   rotError: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &804042517
 MonoBehaviour:

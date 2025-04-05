@@ -18,15 +18,9 @@ public class PID_rot : MonoBehaviour
 
 
     public float P, I, D;
-    public Quaternion qP, qI, qD;
+    public Vector3 vP, vI, vD;
 
     public Vector4 rotError;
-    Quaternion quatError;
-
-    public void Start()
-    {
-        quatError = Quaternion.identity;
-    }
 
     public float GetOutput(float currentError, float deltaTime, char axis)
     {
@@ -38,7 +32,8 @@ public class PID_rot : MonoBehaviour
 
         P = currentError;
         if (!float.IsNaN(P * deltaTime)) { I += P * deltaTime; }
-        D = (P - error) / deltaTime;
+        if (!float.IsNaN(P - error)) { D = (P - error) / deltaTime; }
+        else { D = 0f; }
 
         if (axis == 'x' || axis == 'X') { rotError.x = currentError; }
         else if (axis == 'y' || axis == 'Y') { rotError.y = currentError; }
@@ -48,23 +43,14 @@ public class PID_rot : MonoBehaviour
         return P * Kp + I * Ki + D * Kd;
     }
 
-    // ----------------------- BROKEN ----------------------------------- //
-    public Vector3 GetQuaternionOutput(Quaternion currentError, float deltaTime)
+    public Vector3 GetVectorOutput(Vector3 currentError, float deltaTime)
     {
-        qP = currentError;
-        qI = QAdd(qI, QMultiply(qP, deltaTime));
-        float scalar = 1 / deltaTime;
-        Debug.Log(scalar);
+        vP = currentError;
+        vI += vP * deltaTime; //starts small, increases the longer we stay on one side of an object
+        vD = (vP - (Vector3)rotError) / deltaTime; //approaches zero as the rate of change in acceleration decreases
+        rotError = new Vector4 (currentError.x, currentError.y, currentError.z, rotError.w); //housekeeping for next frame
 
-        if(quatError != Quaternion.identity)
-        { qD = QMultiply((qP * Quaternion.Inverse(quatError)), scalar); }
-
-        else { qD = QMultiply(currentError, scalar); }
-
-
-        quatError = currentError;
-        Quaternion torque = (QMultiply(qP, P)) * (QMultiply(qI, I)) * (QMultiply(qD, D));
-        return new Vector3(torque.x, torque.y, torque.z);
+        return vP * Kp + vI * Ki + vD * Kd;
     }
 
 }

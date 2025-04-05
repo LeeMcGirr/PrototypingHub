@@ -41,7 +41,7 @@ public class gyroPIDController : MonoBehaviour
     {
         deltaTime = Time.fixedDeltaTime;
 
-        //get the delta in quaternion format
+        //get the delta in quaternion format ---------------------------------------------------------------------------
         Quaternion deltaRot = target.rotation * Quaternion.Inverse(transform.rotation);
 
         //grab the eulers and neutralize based off requested rotations
@@ -60,22 +60,42 @@ public class gyroPIDController : MonoBehaviour
         conj *= target.rotation;
         float angle = 360 - ((Mathf.Acos(conj.w)*Mathf.Rad2Deg));
         //Debug.Log("angle between quaternions: " + angle);
-        
+        //above is our final value for scalar error on the quaternion --------------------------------------------------------
+
+
+        //---------------------------PROBLEM: angularVelocity.magnitude returns positive always ------------------------------------
+        //is there some way to flip the sign? do we need to flip the sign?
+        //consider feeding it the raw angularVelocity not the magnitude then synthesizing it into a single float to approximate flipping signs?
         scalar = Gyro(angle, rb.angularVelocity.magnitude, 'W');
         torque = new Vector3(deltaRot.x * scalar, deltaRot.y * scalar, deltaRot.z * scalar);
-        //Debug.Log("torque: " +  torque);    
+        //Debug.Log("torque: " +  torque);
+        
         rb.AddTorque(torque);
+
+
 
 
     }
 
 
+    //----------------------- BIG PROBLEM - I needs to be calculated separately for x/y/z I think ------------------//
+
+    float Gyro(float angleError, Vector3 angularIn, char axis)
+    {
+        angleError = RemapFloat(angleError, 0f, 360f, -1f, 1f);
+        float delta = deltaController.GetOutput(angleError, deltaTime, axis);
+        Vector3 deltaV = deltaVController.GetVectorOutput(angularIn, deltaTime);
+        float deltaVSum = deltaV.x + deltaV.y + deltaV.z;
+        float s = (delta + deltaVSum);
+        return s;
+    }
+
     float Gyro(float angleError, float angularIn, char axis)
     {
         angleError = RemapFloat(angleError, 0f, 360f, -1f, 1f);
-        float torqueCorrectionForAngle = deltaController.GetOutput(angleError, deltaTime, axis);
-        float torqueCorrectionForAngularVelocity = deltaVController.GetOutput(angularIn, deltaTime, axis);
-        float s = (torqueCorrectionForAngle + torqueCorrectionForAngularVelocity);
+        float delta = deltaController.GetOutput(angleError, deltaTime, axis);
+        float deltaV = deltaVController.GetOutput(angularIn, deltaTime, axis);
+        float s = (delta + deltaV);
         return s;
     }
 
