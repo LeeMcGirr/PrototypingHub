@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f1cf23eae9b666a48b8e0a3eca934201
+timeCreated: 1434933215
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Sample/Standard Assets/Vehicles/Car/Models/Materials/SkyCarLightCoversWhite.mat
+  uploadId: 69658

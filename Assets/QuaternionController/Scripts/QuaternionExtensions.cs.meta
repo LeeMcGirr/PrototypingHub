@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: bc11b493ca1d3ab4ba2d3800e664ef00
+timeCreated: 1434923943
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Scripts/QuaternionExtensions.cs
+  uploadId: 69658

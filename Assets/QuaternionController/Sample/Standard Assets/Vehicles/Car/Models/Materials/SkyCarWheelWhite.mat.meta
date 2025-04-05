@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3975fe3a331cc324493b4b20e16002d9
+timeCreated: 1434933208
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Sample/Standard Assets/Vehicles/Car/Models/Materials/SkyCarWheelWhite.mat
+  uploadId: 69658

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1382ddd64f714904aa8ce1f93b67b923
+timeCreated: 1434933208
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Sample/Standard Assets/Vehicles/Car/Models/Materials/SkyCarLightGlows.mat
+  uploadId: 69658

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f3086aba3fd594142b53fa7504e30e75
+timeCreated: 1434932997
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Sample/Standard Assets/Vehicles/Aircraft/Models/Materials/AircraftWingsJetWhite.mat
+  uploadId: 69658

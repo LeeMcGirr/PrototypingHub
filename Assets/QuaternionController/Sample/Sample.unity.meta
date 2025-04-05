@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 637ac87816d8004489c9651fb9bb7fcf
+timeCreated: 1434608256
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 40096
+  packageName: Quaternion PID Controller
+  packageVersion: 1.0
+  assetPath: Assets/QuaternionController/Sample/Sample.unity
+  uploadId: 69658
