@@ -22,7 +22,7 @@ public class PID_rot : MonoBehaviour
 
     public Vector4 rotError;
 
-    public float GetOutput(float currentError, float deltaTime, char axis)
+    public float GetOutput(float currentError, Vector3 basis, float deltaTime, char axis)
     {
         float error;
         if (axis == 'x' || axis == 'X') { error = rotError.x; }
@@ -31,7 +31,11 @@ public class PID_rot : MonoBehaviour
         else { error = rotError.w; }
 
         P = currentError;
-        if (!float.IsNaN(P * deltaTime)) { I += P * deltaTime; }
+        if (!float.IsNaN(P * deltaTime)) 
+        {
+            if (basis.x + basis.y + basis.z < 0f) { I -= P * deltaTime; }
+            else { I += P * deltaTime; }
+        }
         if (!float.IsNaN(P - error)) { D = (P - error) / deltaTime; }
         else { D = 0f; }
 
