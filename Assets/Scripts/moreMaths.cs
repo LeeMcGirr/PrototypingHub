@@ -108,6 +108,16 @@ public class moreMaths : MonoBehaviour
 
     // -------------------------- ADDITIONAL QUATERNION FUNCTIONS -------------------------------------//
     #region moreQuaternions
+
+    public static bool IsValid(Quaternion quaternion) //from: https://discussions.unity.com/t/checking-for-quaternion-values-to-not-be-nan/31006
+    {
+        bool isNaN = float.IsNaN(quaternion.x + quaternion.y + quaternion.z + quaternion.w);
+
+        bool isZero = quaternion.x == 0 && quaternion.y == 0 && quaternion.z == 0 && quaternion.w == 0;
+
+        return !(isNaN || isZero);
+    }
+
     public static Quaternion QMultiply(Quaternion q, float s)
     {
         return new Quaternion(q.x * s, q.y * s, q.z * s, q.w * s);

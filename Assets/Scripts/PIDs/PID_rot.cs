@@ -11,9 +11,9 @@ public class PID_rot : MonoBehaviour
     public string myName;
     [Range(0f, 50f)]
     public float Kp = 1;
-    [Range(0f, 100f)]
+    [Range(0f, 10f)]
     public float Ki = 0;
-    [Range(0f, 3f)]
+    [Range(0f, 10f)]
     public float Kd = 0.1f;
 
 
@@ -56,5 +56,16 @@ public class PID_rot : MonoBehaviour
 
         return vP * Kp + vI * Ki + vD * Kd;
     }
+
+    public void ResetController()
+    {
+        P = 0f;
+        I = 0f;
+        D = 0f;
+        vP = Vector3.zero;
+        vI = Vector3.zero;
+        vD = Vector3.zero;
+        rotError = Vector4.zero;
+    }    
 
 }

@@ -12,6 +12,7 @@ public class gyroPIDController : MonoBehaviour
 {
     [Header("constraints")]
     public Transform target;
+    public float sleepTime = .5f;
     public float MaxAngularVelocity = 20;
     Rigidbody rb;
 
@@ -26,61 +27,80 @@ public class gyroPIDController : MonoBehaviour
     public Vector3 torque;
 
     float deltaTime;
+    Quaternion prevTarget;
+
+    public bool awake;
+    public bool onTarget;
+
 
     void Start()
     {
+        awake = true;
+        onTarget = false;
         rb = GetComponent<Rigidbody>();
         deltaController = gameObject.GetComponents<PID_rot>()[0];
         deltaController.myName = "velocity";
         deltaVController = gameObject.GetComponents<PID_rot>()[1];
         deltaVController.myName = "deltaV";
         rb.maxAngularVelocity = MaxAngularVelocity;
+        StartCoroutine(SleepTimer());
 
     }
 
     void FixedUpdate()
     {
         deltaTime = Time.fixedDeltaTime;
+        Quaternion tD = prevTarget * Quaternion.Inverse(target.rotation);
+        float targetDelta = Mathf.Abs(tD.x) + Mathf.Abs(tD.y) + Mathf.Abs(tD.z);
+        Debug.Log("targetDelta: " + targetDelta);
+        if (targetDelta > .1f) { deltaController.ResetController(); deltaVController.ResetController(); }
 
         //get the delta in quaternion format and sanitize so it's relative to identity rotation ---------------------------------------------------------------------------
-        Quaternion deltaRot = target.rotation * Quaternion.Inverse(transform.rotation);
+        Quaternion deltaRot = target.rotation * Quaternion.Inverse(transform.rotation); //delta rotation
         Quaternion i = Quaternion.identity;
         Quaternion error = new Quaternion(i.x - deltaRot.x, i.y - deltaRot.y, i.z - deltaRot.z, i.w - deltaRot.w);
+        float errorMagn = Mathf.Abs(error.x) + Mathf.Abs(error.y) + Mathf.Abs(error.z);
+        if (errorMagn < .15f) { onTarget = true; }
+        else { onTarget = false; awake = true; }
 
-        //grab the eulers and neutralize based off requested rotations
-        Vector3 eulers = error.eulerAngles;
-        if(!x) eulers.x = 0;
-        if(!y) eulers.y = 0;
-        if(!z) eulers.z = 0;
+        if (awake)
+        {
 
-        //recalculate the delta and flip when .w<0 to ensure we always rotate the shortest distance
-        deltaRot = Quaternion.Euler(eulers);
-        if (deltaRot.w < 0f)
+            //grab the eulers and neutralize based off requested rotations
+            Vector3 eulers = error.eulerAngles;
+            if (!x) eulers.x = 0;
+            if (!y) eulers.y = 0;
+            if (!z) eulers.z = 0;
+
+            //recalculate the delta and flip when .w<0 to ensure we always rotate the shortest distance
+            deltaRot = Quaternion.Euler(eulers);
+            if (deltaRot.w < 0f)
             { deltaRot = new Quaternion(-deltaRot.x, -deltaRot.y, -deltaRot.z, -deltaRot.w); }
-        Debug.DrawRay(transform.position, new Vector3(deltaRot.x, deltaRot.y, deltaRot.z)*3f, Color.yellow);
-        Debug.DrawRay(transform.position, rb.angularVelocity, Color.magenta);
-
-        Quaternion conj = Conj(transform.rotation);
-        conj *= target.rotation;
-        float angle = 360 - ((Mathf.Acos(conj.w)*Mathf.Rad2Deg));
-
-        deltaRot.ToAngleAxis(out float a, out Vector3 eulerRot);
-        Debug.Log("angle from conj: " + angle + "angle from angleAxis: " + a);
-        //Debug.Log("angle between quaternions: " + angle);
-        //above is our final value for scalar error on the quaternion --------------------------------------------------------
+            Vector3 axis = new Vector3(deltaRot.x, deltaRot.y, deltaRot.z);
+            Debug.DrawRay(transform.position, axis * 3f, Color.yellow);
+            Debug.DrawRay(transform.position, -axis * 3f, Color.blue);
+            Debug.DrawRay(transform.position, rb.angularVelocity, Color.magenta);
 
 
-        //---------------------------PROBLEM: angularVelocity.magnitude returns positive always ------------------------------------
-        //is there some way to flip the sign? do we need to flip the sign?
-        //consider feeding it the raw angularVelocity not the magnitude then synthesizing it into a single float to approximate flipping signs?
-        //Debug.Log(Gyro(angle, rb.angularVelocity, 'W'));
-        scalar = Gyro(angle, rb.angularVelocity.magnitude, 'W');
-        Vector3 rotationAxis = Gyro(angle, rb.angularVelocity, 'W');
-        torque = new Vector3(deltaRot.x * scalar, deltaRot.y * scalar, deltaRot.z * scalar);
-        //torque = new Vector3(deltaRot.x * s.x, deltaRot.y * s.y, deltaRot.z * s.z);
-        //Debug.Log("torque: " +  torque);
+            deltaRot.ToAngleAxis(out float a, out Vector3 eulerRot);
+            //Debug.Log("angle from angleAxis: " + a + " axis from ToAngleAxis: " + eulerRot);
+            //above is our final value for scalar error on the quaternion --------------------------------------------------------
 
-        rb.AddTorque(torque);
+
+            //---------------------------PROBLEM: angularVelocity.magnitude returns positive always ------------------------------------
+            //is there some way to flip the sign? do we need to flip the sign?
+            //consider feeding it the raw angularVelocity not the magnitude then synthesizing it into a single float to approximate flipping signs?
+            //Debug.Log(Gyro(angle, rb.angularVelocity, 'W'));
+            scalar = Gyro(a, rb.angularVelocity.magnitude, 'W');
+            //Vector3 rotationAxis = Gyro(a, rb.angularVelocity, 'W');
+            torque = new Vector3(deltaRot.x * scalar, deltaRot.y * scalar, deltaRot.z * scalar);
+            //torque = new Vector3(deltaRot.x * s.x, deltaRot.y * s.y, deltaRot.z * s.z);
+            //Debug.Log("torque: " +  torque);
+
+            rb.AddTorque(torque);
+        }
+
+        prevTarget = target.rotation;
 
     }
 
@@ -101,9 +121,9 @@ public class gyroPIDController : MonoBehaviour
         angleError = RemapFloat(angleError, 0f, 360f, -1f, 1f);
         float delta = deltaController.GetOutput(angleError, rb.angularVelocity, deltaTime, axis); //delta controller K = difference in Quaternion, I = amount of time on one side of quat (needs to be a vector 3?), D = rate of rotation
         float deltaV = deltaVController.GetOutput(angularIn, rb.angularVelocity, deltaTime, axis); //deltaV controller K = difference in angularVelocity to 0, I = amount of time on one side of zero, D = rate of acceleration
-        Vector3 angularDelta = deltaVController.GetVectorOutput(rb.angularVelocity, deltaTime);
-        angularDelta *= Mathf.Rad2Deg;
-        Debug.Log(angularDelta);
+        //Vector3 angularDelta = deltaVController.GetVectorOutput(rb.angularVelocity, deltaTime);
+        //angularDelta *= Mathf.Rad2Deg;
+        //Debug.Log(angularDelta);
         float s = (delta + deltaV);
         return s;
     }
@@ -125,6 +145,24 @@ public class gyroPIDController : MonoBehaviour
 
         return a;
     }
+
+    IEnumerator SleepTimer()
+    {
+        float sleepy = sleepTime;
+        while(sleepy > 0f)
+        {
+            if(onTarget) { sleepy -= Time.deltaTime; }
+            else { sleepy = sleepTime; }
+            yield return null;
+        }
+
+        awake = false;
+        deltaController.ResetController(); 
+        deltaVController.ResetController();
+        Debug.Log("SLEEP");
+    }
+
+
 
 
     //angle between quaternions
