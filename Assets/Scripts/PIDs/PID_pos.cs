@@ -48,4 +48,15 @@ public class PID_pos : MonoBehaviour
 
         return vP * Kp + vI * Ki + vD * Kd;
     }
+
+    public void ResetController()
+    {
+        P = 0f;
+        I = 0f;
+        D = 0f;
+        vP = Vector3.zero;
+        vI = Vector3.zero;
+        vD = Vector3.zero;
+        posError = Vector4.zero;
+    }
 }

@@ -31,9 +31,8 @@ public class PID_rot : MonoBehaviour
         else { error = rotError.w; }
 
         P = currentError;
-        if (!float.IsNaN(P * deltaTime)) { I += P * deltaTime; }
-        if (!float.IsNaN(P - error)) { D = (P - error) / deltaTime; }
-        else { D = 0f; }
+        I += P * deltaTime;
+        D = (P - error) / deltaTime;
 
         if (axis == 'x' || axis == 'X') { rotError.x = currentError; }
         else if (axis == 'y' || axis == 'Y') { rotError.y = currentError; }

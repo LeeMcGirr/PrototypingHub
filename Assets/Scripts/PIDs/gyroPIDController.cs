@@ -51,16 +51,19 @@ public class gyroPIDController : MonoBehaviour
     void FixedUpdate()
     {
         deltaTime = Time.fixedDeltaTime;
+        Quaternion i = Quaternion.identity; //I'm just too lazy to type Quaternion.identity all the time
+
+        //check to see if target rotation has dramatically changed, reset controller if so
         Quaternion tD = prevTarget * Quaternion.Inverse(target.rotation);
         float targetDelta = Mathf.Abs(tD.x) + Mathf.Abs(tD.y) + Mathf.Abs(tD.z);
         if (targetDelta > .1f) { deltaController.ResetController(); deltaVController.ResetController(); }
 
-        //get the delta in quaternion format and sanitize so it's relative to identity rotation ---------------------------------------------------------------------------
-        Quaternion deltaRot = target.rotation * Quaternion.Inverse(transform.rotation); //delta rotation
-        Quaternion i = Quaternion.identity;
+        //get the delta in quaternion format and sanitize so it's relative to identity rotation
+        Quaternion deltaRot = target.rotation * Quaternion.Inverse(transform.rotation);
         Quaternion error = new Quaternion(i.x - deltaRot.x, i.y - deltaRot.y, i.z - deltaRot.z, i.w - deltaRot.w);
         float errorMagn = Mathf.Abs(error.x) + Mathf.Abs(error.y) + Mathf.Abs(error.z);
         
+        //check conditions for sleep vs. awake
         if (errorMagn < tolerance) { onTarget = true; }
         else 
         { 
@@ -74,7 +77,6 @@ public class gyroPIDController : MonoBehaviour
 
         if (awake)
         {
-
             //grab the eulers and neutralize based off requested rotations
             Vector3 eulers = error.eulerAngles;
             if (!x) eulers.x = 0;
@@ -86,46 +88,36 @@ public class gyroPIDController : MonoBehaviour
             if (deltaRot.w < 0f)
             { deltaRot = new Quaternion(-deltaRot.x, -deltaRot.y, -deltaRot.z, -deltaRot.w); }
             Vector3 axis = new Vector3(deltaRot.x, deltaRot.y, deltaRot.z);
-            Debug.DrawRay(transform.position, axis * 3f, Color.yellow);
-            Debug.DrawRay(transform.position, -axis * 3f, Color.blue);
-            Debug.DrawRay(transform.position, rb.angularVelocity, Color.magenta);
 
+            if (debugs) //in case u want them
+            {
+                Debug.DrawRay(transform.position, axis * 3f, Color.yellow);
+                Debug.DrawRay(transform.position, -axis * 3f, Color.blue);
+                Debug.DrawRay(transform.position, rb.angularVelocity, Color.magenta);
+            }
 
-            deltaRot.ToAngleAxis(out float a, out Vector3 eulerRot);
-
-            scalar = Gyro(a, -rb.angularVelocity.magnitude, 'W');
+            //home free at last
+            float angle;
+            if (IsValid(deltaRot)) { deltaRot.ToAngleAxis(out angle, out Vector3 eulerRot); }
+            else { angle = 0f; }
+            scalar = Gyro(angle, -rb.angularVelocity.magnitude, 'W');
             torque = new Vector3(deltaRot.x * scalar, deltaRot.y * scalar, deltaRot.z * scalar);
-            Debug.DrawRay(transform.position, torque * 5f, Color.black);
-
             rb.AddTorque(torque);
         }
+
         prevTarget = target.rotation;
 
     }
 
+    //this is where the magic happens
     float Gyro(float angleError, float angularIn, char axis)
     {
         angleError = RemapFloat(angleError, 0f, 360f, -1f, 1f);
-        float delta = deltaController.GetOutput(angleError, deltaTime, axis); //delta controller K = difference in Quaternion, I = amount of time on one side of quat (needs to be a vector 3?), D = rate of rotation
+        float delta = deltaController.GetOutput(angleError, deltaTime, axis); //delta controller K = difference in Quaternion, I = amount of time on one side of quat, D = rate of rotation
         float deltaV = deltaVController.GetOutput(angularIn, deltaTime, axis); //deltaV controller K = difference in angularVelocity to 0, I = amount of time on one side of zero, D = rate of acceleration
         float s = (delta + deltaV);
         return s;
     }
-
-    //Vector3 axisPID(Vector3 axis, Vector3 angularIn, bool debugs)
-    //{
-    //    Vector3 posError = axis - transform.position;
-    //    Vector3 linearVel = deltaController.GetVectorOutput(posError, deltaTime);
-    //    Vector3 deltaVCorrection = deltaVController.GetVectorOutput(angularIn, deltaTime);
-    //    Vector3 a = (linearVel + deltaVCorrection);
-    //    if (debugs)
-    //    {
-    //        Debug.DrawRay(transform.position - Vector3.up, posError, Color.yellow);
-    //        Debug.DrawLine(transform.position, axis, Color.white);
-    //        Debug.DrawRay(transform.position + Vector3.up, a, Color.red);
-    //    }
-    //    return a;
-    //}
 
     IEnumerator SleepTimer()
     {
@@ -144,3 +136,21 @@ public class gyroPIDController : MonoBehaviour
         Debug.Log("SLEEP");
     }
 }
+
+
+
+
+//Vector3 axisPID(Vector3 axis, Vector3 angularIn, bool debugs)
+//{
+//    Vector3 posError = axis - transform.position;
+//    Vector3 linearVel = deltaController.GetVectorOutput(posError, deltaTime);
+//    Vector3 deltaVCorrection = deltaVController.GetVectorOutput(angularIn, deltaTime);
+//    Vector3 a = (linearVel + deltaVCorrection);
+//    if (debugs)
+//    {
+//        Debug.DrawRay(transform.position - Vector3.up, posError, Color.yellow);
+//        Debug.DrawLine(transform.position, axis, Color.white);
+//        Debug.DrawRay(transform.position + Vector3.up, a, Color.red);
+//    }
+//    return a;
+//}
