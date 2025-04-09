@@ -1,11 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Android.Gradle.Manifest;
 using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static moreMaths;
 
 public class gyroPIDController : MonoBehaviour
@@ -77,6 +73,7 @@ public class gyroPIDController : MonoBehaviour
 
         if (awake)
         {
+            //FIX AXIS NULL TO MATCH TOLERANCE ABOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //grab the eulers and neutralize based off requested rotations
             Vector3 eulers = error.eulerAngles;
             if (!x) eulers.x = 0;
@@ -136,21 +133,3 @@ public class gyroPIDController : MonoBehaviour
         Debug.Log("SLEEP");
     }
 }
-
-
-
-
-//Vector3 axisPID(Vector3 axis, Vector3 angularIn, bool debugs)
-//{
-//    Vector3 posError = axis - transform.position;
-//    Vector3 linearVel = deltaController.GetVectorOutput(posError, deltaTime);
-//    Vector3 deltaVCorrection = deltaVController.GetVectorOutput(angularIn, deltaTime);
-//    Vector3 a = (linearVel + deltaVCorrection);
-//    if (debugs)
-//    {
-//        Debug.DrawRay(transform.position - Vector3.up, posError, Color.yellow);
-//        Debug.DrawLine(transform.position, axis, Color.white);
-//        Debug.DrawRay(transform.position + Vector3.up, a, Color.red);
-//    }
-//    return a;
-//}
